@@ -1,0 +1,14 @@
+{
+  "name": "ble-serial-examples",
+  "version": "0.1.1",
+  "description": "example of using ble-serial",
+  "main": "firmtaExample.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Luis Montes",
+  "license": "MIT",
+  "dependencies": {
+    "firmata": "^0.8.0"
+  }
+}

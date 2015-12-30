@@ -1,0 +1,15 @@
+{
+  "name": "ble-serial",
+  "version": "0.1.0",
+  "description": "Virtual serial device over BLE",
+  "main": "index.js",
+  "repository": "git@github.com:monteslu/ble-serial.git",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Luis Montes",
+  "license": "MIT",
+  "dependencies": {
+    "noble": "^1.2.1"
+  }
+}
