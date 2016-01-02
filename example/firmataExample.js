@@ -1,13 +1,30 @@
-'use strict';
+/*
+ * To run with logging run as:
+ * DEBUG=ble-serial node firmataExample
+ */
+var BLESerialPort = require('../index').SerialPort;
+var Firmata = require('firmata').Board;
 
-var VirtualSerialPort = require('../index').SerialPort;
+//use the virtual serial port to send a command to a firmata device
+var board = new Firmata(new BLESerialPort({
+  // serviceId: '', //OPTIONAL
+  // transmitCharacteristic: '', //OPTIONAL
+  // receiveCharacteristic: '' //OPTIONAL
+}));
 
-var firmata = require('firmata');
+board.on("ready", function() {
+  console.log("READY!");
+  console.log(
+    board.firmware.name + "-" +
+    board.firmware.version.major + "." +
+    board.firmware.version.minor
+  );
 
-var sp = new VirtualSerialPort();
+  var state = 1;
+  var blinkPin = 13;
 
-var board = new firmata.Board(sp);
-board.on('ready', function(){
-  console.log('actually connected to an arduino!');
-  board.digitalWrite(13, 1);
+  setInterval(function() {
+    board.digitalWrite(blinkPin, (state ^= 1));
+  }, 500);
+
 });
