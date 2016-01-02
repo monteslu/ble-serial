@@ -3,6 +3,7 @@
 var util = require('util');
 var stream = require('stream');
 var noble = require('noble');
+var debug = require('debug')('ble-serial');
 
 
 var DEFAULT_SERIAL_SERVICE = '6E400001B5A3F393E0A9E50E24DCCA9E';
@@ -54,7 +55,7 @@ function BLESerialPort(options) {
       // certain advertised service uuids, as well as manufacturer data,
       // which could be formatted as an iBeacon.
       //
-      // console.log('found peripheral:', self.peripheral.advertisement);
+      debug('found peripheral:', self.peripheral.advertisement);
 
       //
       // Once the peripheral has been discovered, then connect to it.
@@ -62,16 +63,16 @@ function BLESerialPort(options) {
       ///
       self.peripheral.connect(function(err) {
 
-        // console.log('connected', err);
+        debug('connected', err);
 
         //
         // Once the peripheral has been connected, then discover the
         // services and characteristics of interest.
         //
         self.peripheral.discoverServices([], function(err, services) {
-          // console.log('discoverServices', err, services);
+          debug('discoverServices', err, services);
           services.forEach(function(service) {
-            // console.log('found service', service);
+            debug('found service', service);
 
 
             //
@@ -79,13 +80,13 @@ function BLESerialPort(options) {
             //
             service.discoverCharacteristics([], function(err, characteristics) {
 
-              // console.log('found characteristics', err, characteristics);
+              debug('found characteristics', err, characteristics);
               characteristics.forEach(function(characteristic) {
                 //
                 // Loop through each characteristic and match them to the
                 // UUIDs that we know about.
                 //
-                // console.log('found characteristic:', characteristic.uuid);
+                debug('found characteristic:', characteristic.uuid);
 
                 if (compareUUIDs(self.transmitCharacteristic, characteristic.uuid)){
                   self.transmit = characteristic;
@@ -99,23 +100,23 @@ function BLESerialPort(options) {
               // Check to see if we found all of our characteristics.
               //
               if (self.transmit && self.receive){
-                // console.log('have both characteristics', self.transmit, self.receive);
+                debug('have both characteristics', self.transmit, self.receive);
                 self.emit('open');
 
 
 
                 self.receive.on('read', function(data, isNotification) {
-                  // console.log('read', data, isNotification);
+                  debug('read', data, isNotification);
                   self.emit('data', data);
                 });
                 self.receive.notify(true, function(err) {
-                  //console.log('notify', err);
+                  debug('notify', err);
                 });
 
 
               }
               else {
-                console.log('missing characteristics');
+                debug('missing characteristics');
               }
             });
 
@@ -151,7 +152,7 @@ BLESerialPort.prototype.open = function (callback) {
 
 BLESerialPort.prototype.write = function (data, callback) {
 
-  console.log('writing', data);
+  debug('writing', data);
 
   if (!Buffer.isBuffer(data)) {
     data = new Buffer(data);
@@ -159,7 +160,7 @@ BLESerialPort.prototype.write = function (data, callback) {
 
   if(this.transmit){
     this.transmit.write(data, false, function(err) {
-      console.log('written', err);
+      debug('written', err);
     });
   }
 
@@ -168,7 +169,7 @@ BLESerialPort.prototype.write = function (data, callback) {
 
 
 BLESerialPort.prototype.close = function (callback) {
-  console.log('closing');
+  debug('closing');
   if(this.peripheral){
     this.peripheral.disconnect();
   }
@@ -178,14 +179,14 @@ BLESerialPort.prototype.close = function (callback) {
 };
 
 BLESerialPort.prototype.flush = function (callback) {
-  console.log('flush');
+  debug('flush');
   if(callback){
     callback();
   }
 };
 
 BLESerialPort.prototype.drain = function (callback) {
-  console.log('drain');
+  debug('drain');
   if(callback){
     callback();
   }
