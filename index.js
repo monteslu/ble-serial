@@ -6,9 +6,9 @@ var noble = require('noble');
 var debug = require('debug')('ble-serial');
 
 
-var DEFAULT_SERIAL_SERVICE = '6E400001B5A3F393E0A9E50E24DCCA9E';
-var DEFAULT_TRANSMIT_CHARACTERISTIC = '6E400002B5A3F393E0A9E50E24DCCA9E';
-var DEFAULT_RECEIVE_CHARACTERISTIC = '6E400003B5A3F393E0A9E50E24DCCA9E';
+var DEFAULT_SERIAL_SERVICE = '6e400001b5a3f393e0a9e50e24dcca9e';
+var DEFAULT_TRANSMIT_CHARACTERISTIC = '6e400002b5a3f393e0a9e50e24dcca9e';
+var DEFAULT_RECEIVE_CHARACTERISTIC = '6e400003b5a3f393e0a9e50e24dcca9e';
 
 function compareUUIDs(a, b){
   a = a || '';
@@ -16,7 +16,7 @@ function compareUUIDs(a, b){
   a = a.toLowerCase().replace(/\-/g, '');
   b = b.toLowerCase().replace(/\-/g, '');
   return a === b;
-}
+ }
 
 function BLESerialPort(options) {
 
@@ -33,14 +33,23 @@ function BLESerialPort(options) {
   var self = this;
 
   if(!this.peripheral){
+    
+   
+    console.log('noble', noble);
+   
+    if(noble.state === 'poweredOn'){
+      noble.startScanning([self.serviceId], false);
+    }else{
+      noble.on('stateChange', function(state) {
+        if (state === 'poweredOn'){
+          noble.startScanning([self.serviceId], false);
+        }else{
+          noble.stopScanning();
+        }
+      });
+    }
+   
 
-    noble.on('stateChange', function(state) {
-      if (state === 'poweredOn'){
-        noble.startScanning([self.serviceId], false);
-      }else{
-        noble.stopScanning();
-      }
-    });
 
 
 
@@ -106,6 +115,7 @@ function BLESerialPort(options) {
 
 
                 self.receive.on('read', function(data, isNotification) {
+                  console.log('read notification', data, isNotification);
                   debug('read', data, isNotification);
                   self.emit('data', data);
                 });
@@ -159,9 +169,7 @@ BLESerialPort.prototype.write = function (data, callback) {
   }
 
   if(this.transmit){
-    this.transmit.write(data, false, function(err) {
-      debug('written', err);
-    });
+    this.transmit.write(data, false);
   }
 
 };
