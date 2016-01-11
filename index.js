@@ -35,8 +35,6 @@ function BLESerialPort(options) {
   if(!this.peripheral){
     
    
-    console.log('noble', noble);
-   
     if(noble.state === 'poweredOn'){
       noble.startScanning([self.serviceId], false);
     }else{
@@ -49,9 +47,6 @@ function BLESerialPort(options) {
       });
     }
    
-
-
-
 
 
     noble.on('discover', function(peripheral) {
@@ -115,7 +110,6 @@ function BLESerialPort(options) {
 
 
                 self.receive.on('read', function(data, isNotification) {
-                  console.log('read notification', data, isNotification);
                   debug('read', data, isNotification);
                   self.emit('data', data);
                 });
