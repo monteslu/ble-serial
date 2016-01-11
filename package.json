@@ -11,6 +11,6 @@
   "license": "MIT",
   "dependencies": {
     "debug": "^2.2.0",
-    "noble": "^1.2.1"
+    "noble": "monteslu/noble"
   }
 }
