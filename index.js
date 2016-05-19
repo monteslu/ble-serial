@@ -52,7 +52,7 @@ function BLESerialPort(options) {
       //
       // check to see if we have already connected to device
       // since this function is invoked asynchronously
-      // and gets invoked even after we've connected
+      // and gets invoked even after we've connected and stopped scanning
       //
       if (self.connected) {
         return;
