@@ -166,6 +166,9 @@ BLESerialPort.prototype.write = function (data, callback) {
     this.transmit.write(data, false);
   }
 
+  if (typeof callback === 'function') {
+    process.nextTick(callback);
+  }
 };
 
 
