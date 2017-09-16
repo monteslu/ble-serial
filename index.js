@@ -25,16 +25,16 @@ function BLESerialPort(options) {
   this.transmitCharacteristic = options.transmitCharacteristic || DEFAULT_TRANSMIT_CHARACTERISTIC;
   this.serviceId = options.serviceId || DEFAULT_SERIAL_SERVICE;
   this.peripheral = options.peripheral;
+  this.localName = options.localName;
 
   this.buffer = null;
   this.lastCheck = 0;
   this.lastSend = 0;
+  this.connected = false;
 
   var self = this;
 
   if(!this.peripheral){
-    
-   
     if(noble.state === 'poweredOn'){
       noble.startScanning([self.serviceId], false);
     }else{
@@ -46,13 +46,33 @@ function BLESerialPort(options) {
         }
       });
     }
-   
-
 
     noble.on('discover', function(peripheral) {
-    // we found a peripheral, stop scanning
-      noble.stopScanning();
 
+      //
+      // check to see if we have already connected to device
+      // since this function is invoked asynchronously
+      // and gets invoked even after we've connected and stopped scanning
+      //
+      if (self.connected) {
+        return;
+      }
+
+      debug('found device with local name: ' + peripheral.advertisement.localName);
+
+      //
+      // if specified in options, check for a match with the device local name
+      //
+      if (self.localName && peripheral.advertisement.localName !== self.localName) {
+        debug('device does not match requested name: ' + self.localName);
+        return;
+      }
+
+      debug('connecting to device...');
+
+      // we found a matching peripheral, stop scanning
+      noble.stopScanning();
+      self.connected = true;
       self.peripheral = peripheral;
       //
       // The advertisment data contains a name, power level (if available),
@@ -121,6 +141,7 @@ function BLESerialPort(options) {
               }
               else {
                 debug('missing characteristics');
+                self.connected = false;
               }
             });
 
@@ -181,6 +202,7 @@ BLESerialPort.prototype.close = function (callback) {
   if(callback){
     callback();
   }
+  self.connected = false;
 };
 
 BLESerialPort.prototype.flush = function (callback) {
