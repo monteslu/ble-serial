@@ -9,6 +9,7 @@ var debug = require('debug')('ble-serial');
 var DEFAULT_SERIAL_SERVICE = '6e400001b5a3f393e0a9e50e24dcca9e';
 var DEFAULT_TRANSMIT_CHARACTERISTIC = '6e400002b5a3f393e0a9e50e24dcca9e';
 var DEFAULT_RECEIVE_CHARACTERISTIC = '6e400003b5a3f393e0a9e50e24dcca9e';
+var DEFAULT_FILTER = function(p) { return true; };
 
 function compareUUIDs(a, b){
   a = a || '';
@@ -24,6 +25,7 @@ function BLESerialPort(options) {
   this.receiveCharacteristic = options.receiveCharacteristic || DEFAULT_RECEIVE_CHARACTERISTIC;
   this.transmitCharacteristic = options.transmitCharacteristic || DEFAULT_TRANSMIT_CHARACTERISTIC;
   this.serviceId = options.serviceId || DEFAULT_SERIAL_SERVICE;
+  this.filter = options.filter || DEFAULT_FILTER;
   this.peripheral = options.peripheral;
 
   this.buffer = null;
@@ -50,7 +52,13 @@ function BLESerialPort(options) {
 
 
     noble.on('discover', function(peripheral) {
-    // we found a peripheral, stop scanning
+      // Check whether we should ignore device
+      if (!self.filter(peripheral)) {
+        debug('filtered out: ', peripheral.advertisement);
+        return;
+      }
+      
+      // we found a peripheral, stop scanning
       noble.stopScanning();
 
       self.peripheral = peripheral;
