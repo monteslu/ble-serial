@@ -28,7 +28,7 @@ var board = new firmata.Board(serialPort, function (err, ok) {
 
 ```
 
-When creating the port, specify a filter in the options to narrow down which BLE device to use. The default behaviour is to use the first device found.
+When creating the port, specify a filter in the options to narrow down which BLE device to use. The default behaviour - if the `filter` parameter is not supplied - is to use the first device found.
 
 ```js
 var serialPort = new BLESerialPort({
